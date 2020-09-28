@@ -8,6 +8,11 @@ public class CustomLinkedList<T> {
     private Node<T> lastNode;
     private int sizeOfLinkedList = 0;
 
+    /**
+     * Creates a new node with the provided value and adds it to the end of the linked list structure.
+     *
+     * @param value : value of the new node.
+     */
     public void add(T value) {
         if (value == null)
             throw new IllegalArgumentException();
@@ -28,17 +33,48 @@ public class CustomLinkedList<T> {
         sizeOfLinkedList++;
     }
 
+    /**
+     * Creates a new node with the provided value and adds it to the beginning of the linked list structure.
+     *
+     * @param value : value of the new node.
+     */
+    public void addFirst(T value) {
+        if (value == null)
+            throw new IllegalArgumentException();
+
+        Node<T> node = new Node<>(value);
+        if (isEmpty()) {
+            firstNode = lastNode = node;
+            sizeOfLinkedList++;
+            return;
+        }
+
+        Node<T> nextNode = firstNode;
+        firstNode = node;
+        firstNode.next = nextNode;
+        sizeOfLinkedList++;
+    }
+
+    /**
+     * Creates new nodes with all values in the provided list and adds them to the end of the linked list structure.
+     *
+     * @param listOfValues : list of node values.
+     */
     public void addAll(List<T> listOfValues) {
         for (T value : listOfValues) {
             add(value);
         }
     }
 
+    /**
+     * Removes and returns the top node from the structure and updates the top node.
+     *
+     * @return returns the removed value.
+     */
     public T removeFirst() {
         if (isEmpty())
             throw new NoSuchElementException();
 
-        assert firstNode != null;
         T value = firstNode.value;
         if (isSingleElement()) {
             firstNode = lastNode = null;
@@ -53,11 +89,15 @@ public class CustomLinkedList<T> {
         return value;
     }
 
+    /**
+     * Removes and returns the last node from the structure and updates the last node.
+     *
+     * @return returns the removed value.
+     */
     public T removeLast() {
         if (isEmpty())
             throw new NoSuchElementException();
 
-        assert firstNode != null;
         T value = lastNode.value;
         if (isSingleElement()) {
             firstNode = lastNode = null;
@@ -76,6 +116,11 @@ public class CustomLinkedList<T> {
         return value;
     }
 
+    /**
+     * Removes the first occurrence of the value passed to the function.
+     *
+     * @param value : value of the node to be removed.
+     */
     public void removeFirstOccurrence(T value) {
         if (isEmpty())
             throw new NoSuchElementException();
@@ -89,7 +134,6 @@ public class CustomLinkedList<T> {
             throw new NoSuchElementException();
         }
 
-        assert firstNode != null;
         if (firstNode.value.equals(value)) {
             removeFirst();
             return;
@@ -110,6 +154,11 @@ public class CustomLinkedList<T> {
         throw new NoSuchElementException();
     }
 
+    /**
+     * Removes the last occurrence of the value passed to the function.
+     *
+     * @param value : value of the node to be removed.
+     */
     public void removeLastOccurrence(T value) {
         if (isEmpty())
             throw new NoSuchElementException();
@@ -126,6 +175,12 @@ public class CustomLinkedList<T> {
         unlinkNode(false, -1, value);
     }
 
+    /**
+     * Removes the Kth occurrence of the value passed to the function.
+     *
+     * @param ocr   : value of K.
+     * @param value : value of the node to be removed.
+     */
     public void removeKthOccurrence(int ocr, T value) {
         if (isEmpty())
             throw new NoSuchElementException();
@@ -188,6 +243,12 @@ public class CustomLinkedList<T> {
         throw new NoSuchElementException();
     }
 
+    /**
+     * Returns the Kth value from the last node.
+     *
+     * @param k : index of the node to be retrieved.
+     * @return returns the Kth value from the last node.
+     */
     public T getKthElementFromLast(int k) {
         if (isEmpty())
             throw new NoSuchElementException();
@@ -215,6 +276,9 @@ public class CustomLinkedList<T> {
         return kthNode != null ? kthNode.value : null;
     }
 
+    /**
+     * Removes all duplicate nodes from the structure.
+     */
     public void deduplicateLinkedList() {
         List<T> tList = new ArrayList<>();
         Node<T> currentNode = firstNode.next;
@@ -229,6 +293,7 @@ public class CustomLinkedList<T> {
                 previousNode.next = temp;
 
                 currentNode = temp;
+                sizeOfLinkedList--;
                 continue;
             }
 
@@ -238,6 +303,52 @@ public class CustomLinkedList<T> {
 
     }
 
+    /**
+     * Reverses the linked list structure.
+     */
+    public void reverse() {
+        if (isEmpty())
+            throw new NoSuchElementException();
+
+        if (isSingleElement())
+            return;
+
+        Node<T> newFirstNode = new Node<>(firstNode.value);
+        Node<T> previousNode;
+
+        Node<T> currentNode = firstNode;
+        while (currentNode.next != null) {
+            previousNode = newFirstNode;
+            currentNode = currentNode.next;
+            newFirstNode = new Node<>(currentNode.value);
+            newFirstNode.next = previousNode;
+        }
+
+        lastNode = firstNode;
+        firstNode = newFirstNode;
+    }
+
+    /**
+     * Provides the functionality of a stack and adds element to the top of the structure.
+     *
+     * @param value : value of the new node.
+     */
+    public void push(T value) {
+        addFirst(value);
+    }
+
+    /**
+     * Provides the functionality of a stack and removes and returns the top element of the structure.
+     *
+     * @return Returns the top element from the structure.
+     */
+    public T pop() {
+        return removeFirst();
+    }
+
+    /**
+     * Returns the linked list as an array.
+     */
     public Object[] toArray() {
         Object[] array = new Object[sizeOfLinkedList];
         int counter = 0;
@@ -250,18 +361,24 @@ public class CustomLinkedList<T> {
         return array;
     }
 
+    /**
+     * Returns the size of the linked list.
+     */
     public int size() {
         return this.sizeOfLinkedList;
     }
 
     private boolean isEmpty() {
-        return (firstNode == null && lastNode == null);
+        return firstNode == null;
     }
 
     private boolean isSingleElement() {
         return firstNode == lastNode;
     }
 
+    /**
+     * Prints the structure in a graphical representation on the console.
+     */
     public void print() {
         if (firstNode == null)
             return;
@@ -271,7 +388,7 @@ public class CustomLinkedList<T> {
             if (currentNode.next != null)
                 System.out.print(currentNode.value.toString().concat(" -> "));
             else
-                System.out.print(currentNode.value);
+                System.out.println(currentNode.value);
             currentNode = currentNode.next;
         }
     }

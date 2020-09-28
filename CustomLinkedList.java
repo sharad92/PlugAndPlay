@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 public class CustomLinkedList<T> {
 
@@ -73,7 +71,7 @@ public class CustomLinkedList<T> {
      */
     public T removeFirst() {
         if (isEmpty())
-            throw new NoSuchElementException();
+            throw new IllegalStateException();
 
         T value = firstNode.value;
         if (isSingleElement()) {
@@ -96,7 +94,7 @@ public class CustomLinkedList<T> {
      */
     public T removeLast() {
         if (isEmpty())
-            throw new NoSuchElementException();
+            throw new IllegalStateException();
 
         T value = lastNode.value;
         if (isSingleElement()) {
@@ -123,7 +121,7 @@ public class CustomLinkedList<T> {
      */
     public void removeFirstOccurrence(T value) {
         if (isEmpty())
-            throw new NoSuchElementException();
+            throw new IllegalStateException();
 
         if (isSingleElement()) {
             if (firstNode.value.equals(value)) {
@@ -161,7 +159,7 @@ public class CustomLinkedList<T> {
      */
     public void removeLastOccurrence(T value) {
         if (isEmpty())
-            throw new NoSuchElementException();
+            throw new IllegalStateException();
 
         if (isSingleElement()) {
             if (lastNode.value.equals(value)) {
@@ -183,7 +181,7 @@ public class CustomLinkedList<T> {
      */
     public void removeKthOccurrence(int ocr, T value) {
         if (isEmpty())
-            throw new NoSuchElementException();
+            throw new IllegalStateException();
 
         if (ocr == 0)
             throw new IllegalArgumentException();
@@ -251,7 +249,7 @@ public class CustomLinkedList<T> {
      */
     public T getKthElementFromLast(int k) {
         if (isEmpty())
-            throw new NoSuchElementException();
+            throw new IllegalStateException();
 
         if (isSingleElement()) {
             if (k != 0)
@@ -280,6 +278,9 @@ public class CustomLinkedList<T> {
      * Removes all duplicate nodes from the structure.
      */
     public void deduplicateLinkedList() {
+        if (isEmpty())
+            throw new IllegalStateException();
+
         List<T> tList = new ArrayList<>();
         Node<T> currentNode = firstNode.next;
         Node<T> previousNode = firstNode;
@@ -300,7 +301,71 @@ public class CustomLinkedList<T> {
             previousNode = previousNode.next;
             currentNode = currentNode.next;
         }
+    }
 
+    /**
+     * Removes duplicate nodes from the structure whilst allowing N duplicates.
+     */
+    public void deDuplicateLinkedListWithNDuplicatesAllowed(int N) {
+        if (isEmpty())
+            throw new IllegalStateException();
+
+        if (N < 0)
+            throw new IllegalArgumentException();
+
+        Map<T, Integer> duplicateCounterMap = new HashMap<>();
+        Node<T> currentNode = firstNode.next;
+        Node<T> previousNode = firstNode;
+        duplicateCounterMap.putIfAbsent(firstNode.value, 0);
+        while (currentNode != null) {
+            if (duplicateCounterMap.containsKey(currentNode.value)) {
+                duplicateCounterMap.replace(currentNode.value, duplicateCounterMap.get(currentNode.value) + 1);
+            } else {
+                duplicateCounterMap.putIfAbsent(currentNode.value, 0);
+            }
+
+            if (duplicateCounterMap.get(currentNode.value) > N) {
+                Node<T> temp = currentNode.next;
+                currentNode.next = null;
+                previousNode.next = temp;
+
+                currentNode = temp;
+                sizeOfLinkedList--;
+                continue;
+            }
+
+            previousNode = previousNode.next;
+            currentNode = currentNode.next;
+        }
+    }
+
+    /**
+     * Removes duplicate characters from a provided string on a per word basis.
+     */
+    @SuppressWarnings("unchecked")
+    public String removeDuplicatesFromString(String str) {
+        String[] wordsArr = str.split(" ");
+
+        StringBuilder parentBuilder = new StringBuilder();
+        for (String word : wordsArr) {
+            delete();
+
+            for (Object ch : word.split("")) {
+                add((T) ch);
+            }
+
+            deduplicateLinkedList();
+            StringBuilder childBuilder = new StringBuilder();
+            Node<T> currentNode = firstNode;
+            while (currentNode != null) {
+                childBuilder.append(currentNode.value);
+                currentNode = currentNode.next;
+            }
+
+            parentBuilder.append(childBuilder.toString()).append(" ");
+        }
+
+        return parentBuilder.toString().trim();
     }
 
     /**
@@ -308,7 +373,7 @@ public class CustomLinkedList<T> {
      */
     public void reverse() {
         if (isEmpty())
-            throw new NoSuchElementException();
+            throw new IllegalStateException();
 
         if (isSingleElement())
             return;
@@ -374,6 +439,14 @@ public class CustomLinkedList<T> {
 
     private boolean isSingleElement() {
         return firstNode == lastNode;
+    }
+
+    private void delete() {
+        if (isEmpty())
+            return;
+
+        firstNode = lastNode = null;
+        sizeOfLinkedList = 0;
     }
 
     /**

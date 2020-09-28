@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -18,12 +19,12 @@ public class CustomLinkedList<T> {
             return;
         }
 
-        Node<T> current = firstNode;
-        while (current.next != null) {
-            current = current.next;
+        Node<T> currentNode = firstNode;
+        while (currentNode.next != null) {
+            currentNode = currentNode.next;
         }
 
-        current.next = lastNode = node;
+        currentNode.next = lastNode = node;
         sizeOfLinkedList++;
     }
 
@@ -187,6 +188,68 @@ public class CustomLinkedList<T> {
         throw new NoSuchElementException();
     }
 
+    public T getKthElementFromLast(int k) {
+        if (isEmpty())
+            throw new NoSuchElementException();
+
+        if (isSingleElement()) {
+            if (k != 0)
+                throw new IllegalArgumentException();
+            else {
+                return firstNode.value;
+            }
+        }
+
+        int boundary = 0;
+        Node<T> kthNode = firstNode;
+        Node<T> currentNode = firstNode;
+        while (currentNode != null) {
+            kthNode = kthNode.next;
+            currentNode = currentNode.next;
+
+            if (boundary++ == k) {
+                kthNode = firstNode;
+            }
+        }
+
+        return kthNode != null ? kthNode.value : null;
+    }
+
+    public void deduplicateLinkedList() {
+        List<T> tList = new ArrayList<>();
+        Node<T> currentNode = firstNode.next;
+        Node<T> previousNode = firstNode;
+        tList.add(firstNode.value);
+        while (currentNode != null) {
+            if (!tList.contains(currentNode.value)) {
+                tList.add(currentNode.value);
+            } else {
+                Node<T> temp = currentNode.next;
+                currentNode.next = null;
+                previousNode.next = temp;
+
+                currentNode = temp;
+                continue;
+            }
+
+            previousNode = previousNode.next;
+            currentNode = currentNode.next;
+        }
+
+    }
+
+    public Object[] toArray() {
+        Object[] array = new Object[sizeOfLinkedList];
+        int counter = 0;
+        Node<T> currentNode = firstNode;
+        while (currentNode != null) {
+            array[counter++] = currentNode.value;
+            currentNode = currentNode.next;
+        }
+
+        return array;
+    }
+
     public int size() {
         return this.sizeOfLinkedList;
     }
@@ -200,10 +263,16 @@ public class CustomLinkedList<T> {
     }
 
     public void print() {
-        Node<T> current = firstNode;
-        while (current != null) {
-            System.out.println(current.value);
-            current = current.next;
+        if (firstNode == null)
+            return;
+
+        Node<T> currentNode = firstNode;
+        while (currentNode != null) {
+            if (currentNode.next != null)
+                System.out.print(currentNode.value.toString().concat(" -> "));
+            else
+                System.out.print(currentNode.value);
+            currentNode = currentNode.next;
         }
     }
 

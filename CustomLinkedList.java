@@ -5,13 +5,14 @@ public class CustomLinkedList<T> {
     private Node<T> firstNode;
     private Node<T> lastNode;
     private int sizeOfLinkedList = 0;
+    private Node<T> newFirstNodeRecursion;
 
     /**
      * Creates a new node with the provided value and adds it to the end of the linked list structure.
      *
      * @param value : value of the new node.
      */
-    public void add(T value) {
+    public boolean add(T value) {
         if (value == null)
             throw new IllegalArgumentException();
 
@@ -19,7 +20,7 @@ public class CustomLinkedList<T> {
         if (isEmpty()) {
             firstNode = lastNode = node;
             sizeOfLinkedList++;
-            return;
+            return true;
         }
 
         Node<T> currentNode = firstNode;
@@ -29,6 +30,44 @@ public class CustomLinkedList<T> {
 
         currentNode.next = lastNode = node;
         sizeOfLinkedList++;
+        return true;
+    }
+
+    /**
+     * Creates a new node with the provided value and adds it at the provided index in the linked list structure.
+     *
+     * @param idx   : index to insert value at
+     * @param value : value of the new node.
+     */
+    public boolean add(int idx, T value) {
+        if (value == null)
+            throw new IllegalArgumentException();
+
+        int ctr = 0;
+        Node<T> node = new Node<>(value);
+        if (isEmpty()) {
+            if (idx > 0)
+                throw new IllegalArgumentException();
+
+            firstNode = lastNode = node;
+            sizeOfLinkedList++;
+            return true;
+        }
+
+        if (idx == 0)
+            addFirst(value);
+        else if (idx == sizeOfLinkedList + 1)
+            add(value);
+
+        Node<T> currentNode = firstNode;
+        while (currentNode.next != null && ++ctr != idx) {
+            currentNode = currentNode.next;
+        }
+
+        node.next = currentNode.next;
+        currentNode.next = node;
+        sizeOfLinkedList++;
+        return true;
     }
 
     /**
@@ -54,6 +93,15 @@ public class CustomLinkedList<T> {
     }
 
     /**
+     * Creates a new node with the provided value and adds it to the end of the linked list structure.
+     *
+     * @param value : value of the new node.
+     */
+    public void addLast(T value) {
+        add(value);
+    }
+
+    /**
      * Creates new nodes with all values in the provided list and adds them to the end of the linked list structure.
      *
      * @param listOfValues : list of node values.
@@ -62,6 +110,22 @@ public class CustomLinkedList<T> {
         for (T value : listOfValues) {
             add(value);
         }
+    }
+
+    /**
+     * Returns whether a node with the provided value exists.
+     *
+     * @param value : value of the node to search.
+     */
+    public boolean contains(T value) {
+        Node<T> currentNode = firstNode;
+        while (currentNode != null) {
+            if (currentNode.value.equals(value))
+                return true;
+            currentNode = currentNode.next;
+        }
+
+        return false;
     }
 
     /**
@@ -277,7 +341,7 @@ public class CustomLinkedList<T> {
     /**
      * Removes all duplicate nodes from the structure.
      */
-    public void deduplicateLinkedList() {
+    public void deduplicate() {
         if (isEmpty())
             throw new IllegalStateException();
 
@@ -306,7 +370,7 @@ public class CustomLinkedList<T> {
     /**
      * Removes duplicate nodes from the structure whilst allowing N duplicates.
      */
-    public void deDuplicateLinkedListWithNDuplicatesAllowed(int N) {
+    public void deDuplicateWithNDuplicatesAllowed(int N) {
         if (isEmpty())
             throw new IllegalStateException();
 
@@ -348,13 +412,13 @@ public class CustomLinkedList<T> {
 
         StringBuilder parentBuilder = new StringBuilder();
         for (String word : wordsArr) {
-            delete();
+            clear();
 
             for (Object ch : word.split("")) {
                 add((T) ch);
             }
 
-            deduplicateLinkedList();
+            deduplicate();
             StringBuilder childBuilder = new StringBuilder();
             Node<T> currentNode = firstNode;
             while (currentNode != null) {
@@ -365,6 +429,7 @@ public class CustomLinkedList<T> {
             parentBuilder.append(childBuilder.toString()).append(" ");
         }
 
+        clear();
         return parentBuilder.toString().trim();
     }
 
@@ -391,6 +456,84 @@ public class CustomLinkedList<T> {
 
         lastNode = firstNode;
         firstNode = newFirstNode;
+    }
+
+    /**
+     * Public method to invoke reverse through recursion method.
+     */
+    public void reverseThroughRecursion() {
+        reverse(firstNode);
+        firstNode = newFirstNodeRecursion;
+    }
+
+    /**
+     * Reverses the linked list structure through recursion.
+     *
+     * @param headNode : root node of the current sublist.
+     */
+    private Node<T> reverse(Node<T> headNode) {
+        if (isEmpty())
+            throw new IllegalStateException();
+
+        if (isSingleElement())
+            return headNode;
+
+        if (headNode.next == null) {
+            newFirstNodeRecursion = headNode;
+            return newFirstNodeRecursion;
+        }
+
+        reverse(headNode.next).next = headNode;
+        headNode.next = null;
+        return headNode;
+    }
+
+    /**
+     * Reverses portion of the linked list structure provided the start and end index.
+     *
+     * @param str : start index.
+     * @param end : end index.
+     */
+    public void reverse(int str, int end) {
+        if (isEmpty())
+            throw new IllegalStateException();
+
+        if (isSingleElement())
+            return;
+
+        int idx = 0;
+        Node<T> currentNode = firstNode;
+        Node<T> previousNode = firstNode;
+        Node<T> nextNode;
+        while (currentNode.next != null && idx++ != str - 1) {
+            previousNode = currentNode;
+            currentNode = currentNode.next;
+        }
+
+        Node<T> pNode;
+        Node<T> cNode = currentNode;
+        Node<T> newFirstNode = new Node<>(cNode.value);
+        idx--;
+        while (cNode.next != null && idx++ != end - 1) {
+            pNode = newFirstNode;
+            cNode = cNode.next;
+            newFirstNode = new Node<>(cNode.value);
+            newFirstNode.next = pNode;
+        }
+        nextNode = cNode.next;
+
+        if (previousNode != firstNode || str - 1 > 0)
+            previousNode.next = newFirstNode;
+        else
+            firstNode = newFirstNode;
+
+        Node<T> iNode = newFirstNode;
+        while (iNode.next != null) {
+            iNode = iNode.next;
+        }
+
+        if (iNode != lastNode)
+            iNode.next = nextNode;
     }
 
     /**
@@ -441,7 +584,10 @@ public class CustomLinkedList<T> {
         return firstNode == lastNode;
     }
 
-    private void delete() {
+    /**
+     * Clears all elements of the linked list.
+     */
+    public void clear() {
         if (isEmpty())
             return;
 
